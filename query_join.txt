@@ -2,7 +2,7 @@
 
 SELECT students.id, students.name, students.surname
 FROM students
-JOIN degrees ON students.degree_id = degrees.id
+INNER JOIN degrees ON students.degree_id = degrees.id
 WHERE degrees.name = 'Economia';
 
 
@@ -11,7 +11,7 @@ Neuroscienze
 
 SELECT degrees.id, degrees.name
 FROM degrees
-JOIN departments ON degrees.department_id = departments.id
+INNER JOIN departments ON degrees.department_id = departments.id
 WHERE departments.name = 'Neuroscienze' 
 AND degrees.level = 'Magistrale';
 
@@ -20,8 +20,8 @@ AND degrees.level = 'Magistrale';
 
 SELECT courses.id, courses.name
 FROM courses
-JOIN course_teacher ON courses.id = course_teacher.course_id
-JOIN teachers ON course_teacher.teacher_id = teachers.id
+INNER JOIN course_teacher ON courses.id = course_teacher.course_id
+INNER JOIN teachers ON course_teacher.teacher_id = teachers.id
 WHERE teachers.id = 44;
 
 
@@ -31,8 +31,8 @@ nome
 
 SELECT students.id, students.name, students.surname, degrees.name, departments.name
 FROM students
-JOIN degrees ON students.degree_id = degrees.id
-JOIN departments ON degrees.department_id = departments.id
+INNER JOIN degrees ON students.degree_id = degrees.id
+INNER JOIN departments ON degrees.department_id = departments.id
 ORDER BY students.surname ASC, students.name ASC;
 
 
@@ -40,23 +40,33 @@ ORDER BY students.surname ASC, students.name ASC;
 
 SELECT degrees.id AS id_corso_laurea, degrees.name, courses.id AS id_corso, teachers.name AS nome_insegnante, teachers.surname AS cognome_insegnante
 FROM degrees
-JOIN courses ON degrees.id = courses.degree_id
-JOIN course_teacher ON courses.id = course_teacher.course_id
-JOIN teachers ON course_teacher.teacher_id = teachers.id
+INNER JOIN courses ON degrees.id = courses.degree_id
+INNER JOIN course_teacher ON courses.id = course_teacher.course_id
+INNER JOIN teachers ON course_teacher.teacher_id = teachers.id
 ORDER BY degrees.name ASC, courses.name ASC, teachers.surname ASC, teachers.name ASC;
 
 
 6. Selezionare tutti i docenti che insegnano nel Dipartimento di
 Matematica (54)
 
-SELECT DISTINCT teachers.id, teachers.name, teachers.surname
+SELECT DISTINCT departments.name, teachers.id, teachers.name, teachers.surname
 FROM teachers
-JOIN course_teacher ON teachers.id = course_teacher.teacher_id
-JOIN courses ON course_teacher.course_id = courses.id
-JOIN degrees ON courses.degree_id = degrees.id
-JOIN departments ON degrees.department_id = departments.id
-
+INNER JOIN course_teacher ON teachers.id = course_teacher.teacher_id
+INNER JOIN courses ON course_teacher.course_id = courses.id
+INNER JOIN degrees ON courses.degree_id = degrees.id
+INNER JOIN departments ON degrees.department_id = departments.id
+WHERE departments.name = 'Matematica';
 
 7. BONUS: Selezionare per ogni studente il numero di tentativi sostenuti
 per ogni esame, stampando anche il voto massimo. Successivamente,
 filtrare i tentativi con voto minimo 18
+
+
+SELECT students.id AS id_studente, students.name, students.surname, exam_student.exam_id 
+COUNT(exam_student.vote) AS numero_tentativi,
+MAX(exam_student.vote) AS voto_massimo
+FROM students
+INNER JOIN exam_student ON students.id = exam_student.student_id
+GROUP BY students.id, students.name, students.surname, exam_student.exam_id
+HAVING voto_massimo >= 18
+ORDER BY students.surname, students.name, exam_student.exam_id;
